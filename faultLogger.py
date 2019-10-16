@@ -8,5 +8,9 @@ def my_logger(func):
 	def wrapper(*args, **kwargs):
 		info_message='Ran with args: {}, and kwargs {}'.format(args, kwargs)
 		logging.info(info_message)
-		return(func(*args, **kwargs))
+		try:
+			return(func(*args, **kwargs))
+		except Exception as e:
+			logging.info(e)
+			return("Exception Thrown")
 	return wrapper
