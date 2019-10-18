@@ -13,8 +13,7 @@ class mqttClient():
         self.client.username_pw_set(self.user, password=self.password)    #set username and password
         print(self.on_connect)
         self.client.on_connect= self.on_connect                 #attach function to callback
-        self.client.connect(self.broker_address, port=self.port)          #connect to broker
-        print("__init__ complete")
+        
  
     def on_connect(self, client, userdata, flags, rc):
      
@@ -24,9 +23,18 @@ class mqttClient():
         else:
             print("Connection failed")
             self.Connected = False   #global variable for the state of the connection
+
+    def publish(self, topic, payload):
+        self.client.connect(self.broker_address, port=self.port)          #connect to broker
+        self.client.loop_start()
+        while self.Connected!=True:
+            time.sleep(0.1)
+        self.client.publish(topic, payload)
+        self.client.disconnect()
  
 
 if __name__=="__main__":
+    ##TESTING LINES
     cl = mqttClient()
     cl.client.loop_start()        #start the loop
      
@@ -39,3 +47,4 @@ if __name__=="__main__":
             cl.client.publish("python/test",value)
     except KeyboardInterrupt:
         cl.client.disconnect()
+    ##

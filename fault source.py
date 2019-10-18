@@ -1,6 +1,6 @@
-import faultLogger
+from SupportClasses.faultLogger import my_logger
 
-@faultLogger.my_logger
+@my_logger
 def sampleMath(num):
 		i=num/0
 		return i
