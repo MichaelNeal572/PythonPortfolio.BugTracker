@@ -3,31 +3,21 @@ from datetime import datetime
 import time
 
 class POSTClient():
-    def insert_bug(self, bugDetails, bugArguments, bugSource,bugDateCreated, bugStatus, bugExpectedDevTime):
-        url = "http://192.168.8.201:1880/InsertBugRecord"
-        message={
-            "bugDetails":bugDetails, 
-            "bugArguments":bugArguments, 
-            "bugSource":bugSource,
-            "bugDateCreated":bugDateCreated, 
-            "bugStatus":bugStatus, 
-            "bugExpectedDevTime":bugExpectedDevTime
-        }
-        return(self.send(message, url))
+    def __init__(self):
+        self.URL="http://192.168.8.201:1880/BugTrackerCRUD"
 
-    def insert_bug_new(self, bugDetails, bugArguements, bugSource):
-        return(self.insert_bug(bugDetails, bugArguements, bugSource, datetime.now(), "New", "TBD"))
-
-    def send(self, message, url):
-        r = requests.post(url, data=message)
+    ##Sends the prepared messages to the available urls and returns the response object##
+    def send(self, message):
+        payload = {"statement":message}
+        r = requests.post(self.URL, data=payload)
         response={
             "status_code":r.status_code,
             "reason":r.reason,
-            "text":r.text
+            "payload":r.text
         }
         return response
 
 if __name__ == "__main__":
     ##TESTING LINES
     cl = POSTClient()
-    print(cl.insert_bug_new('Test', 'Test', 'Test'))
+    print(cl.send('SELECT * FROM bugs'))
