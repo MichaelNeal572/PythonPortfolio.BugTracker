@@ -1,4 +1,5 @@
 from functools import wraps
+from SupportClasses.mqttClient import Client
 
 def my_logger(func):
 	import logging
@@ -13,7 +14,8 @@ def my_logger(func):
 			return(func(*args, **kwargs))
 		except Exception as e:
 			logging.info(e)
+			client = Client()
+			client.insert_bug(str(e), info_message, func.__name__)
 			logging.info("#####################################")
-			return("Exception Thrown")
-
+			return(f"An error occured: {e}")
 	return wrapper
