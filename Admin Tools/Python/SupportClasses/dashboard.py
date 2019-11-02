@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'dashboard.ui'
+# Form implementation generated from reading ui file 'C:\Users\Michael\Documents\GitHub\PythonPortfolio.BugTracker\PythonPortfolio.BugTracker\Admin Tools\Python\SupportClasses\dashboard.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -414,15 +414,15 @@ class Ui_MainWindow(object):
         item = self.tblwBugs.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "Row ID"))
         item = self.tblwBugs.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "New Column"))
-        item = self.tblwBugs.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Details"))
-        item = self.tblwBugs.horizontalHeaderItem(3)
+        item = self.tblwBugs.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Arguments"))
-        item = self.tblwBugs.horizontalHeaderItem(4)
+        item = self.tblwBugs.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "Source"))
-        item = self.tblwBugs.horizontalHeaderItem(5)
+        item = self.tblwBugs.horizontalHeaderItem(4)
         item.setText(_translate("MainWindow", "Date Created"))
+        item = self.tblwBugs.horizontalHeaderItem(5)
+        item.setText(_translate("MainWindow", "Status"))
         item = self.tblwBugs.horizontalHeaderItem(6)
         item.setText(_translate("MainWindow", "Expected Resolution"))
         self.label.setText(_translate("MainWindow", "Details: "))

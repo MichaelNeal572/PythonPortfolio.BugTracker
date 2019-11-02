@@ -58,11 +58,6 @@
           </column>
           <column>
            <property name="text">
-            <string>New Column</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
             <string>Details</string>
            </property>
           </column>
@@ -79,6 +74,11 @@
           <column>
            <property name="text">
             <string>Date Created</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Status</string>
            </property>
           </column>
           <column>
