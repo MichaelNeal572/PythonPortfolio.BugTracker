@@ -27,7 +27,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tbBugs">
        <attribute name="title">
@@ -344,6 +344,11 @@
           </attribute>
           <column>
            <property name="text">
+            <string>Row ID</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
             <string>User Name</string>
            </property>
           </column>
@@ -526,6 +531,11 @@
           </attribute>
           <column>
            <property name="text">
+            <string>Row ID</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
             <string>User Name</string>
            </property>
           </column>
@@ -671,6 +681,11 @@
           <attribute name="verticalHeaderCascadingSectionResizes">
            <bool>false</bool>
           </attribute>
+          <column>
+           <property name="text">
+            <string>Row ID</string>
+           </property>
+          </column>
           <column>
            <property name="text">
             <string>Listener User Name</string>

@@ -1,5 +1,7 @@
 import sys
 from PyQt5 import QtCore, QtWidgets, QtGui
+import datetime
+from dateutil import parser
 from SupportClasses import dashboard, login, databaseconnector
 
 class LoginW:
@@ -23,13 +25,33 @@ class DashboardW:
 
     ##Input field functions##
     def clear_fields_bugs(self):
-        pass
+        self.ui.txtBugDetails.setText("")
+        self.ui.txtBugArgs.setText("")
+        self.ui.txtBugKwargs.setText("")
+        self.ui.txtBugSource.setText("")
+        self.ui.deBugDateCreated.setDate(datetime.datetime.now())
+        self.ui.cmbBugStatus.setCurrentIndex(0)
+        self.ui.dteBugResolution.setDateTime(datetime.datetime.now())
+        self.ui.rdoBugUnknown.setChecked(True)
 
     def populate_fields_bugs(self):
-        pass
+        table = self.ui.tblwBugs
+        row = table.selectedIndexes()[-1].row()
+        self.ui.txtBugDetails.setText(table.item(row, 0).text())
+        self.ui.txtBugArgs.setText(table.item(row, 1).text())
+        self.ui.txtBugKwargs.setText(table.item(row, 2).text())
+        self.ui.txtBugSource.setText(table.item(row, 3).text())
+        self.ui.deBugDateCreated.setDate(parser.parse(table.item(row, 4).text()))
+        index = self.ui.cmbBugStatus.findText(table.item(row, 5).text(), QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.ui.cmbBugStatus.setCurrentIndex(index)
+        if table.item(row, 6).text() == "TBD":
+            self.ui.rdoBugUnknown.setChecked(True)
+        else:
+            self.ui.dteBugResolution.setDateTime(parser.parse(table.item(row, 6).text()))
+            self.ui.rdoBugKnown.setChecked(True)
+        
 
-    def set_fields_bugs(self):
-        pass
 
     def get_fields_bugs(self):
         if (self.ui.rdoBugUnknown.isChecked()):
@@ -48,13 +70,18 @@ class DashboardW:
         return(fields)
 
     def clear_fields_admins(self):
-        pass
+        self.ui.txtAdminUserName.setText("")
+        self.ui.txtAdminFirstName.setText("")
+        self.ui.txtAdminLastName.setText("")
+        self.ui.txtAdminPassword.setText("")
 
     def populate_fields_admins(self):
-        pass
-
-    def set_fields_admins(self):
-        pass
+        table = self.ui.tblwBugs
+        row = table.selectedIndexes()[-1].row()
+        self.ui.txtBugDetails.setText(table.item(row, 0).text())
+        self.ui.txtBugDetails.setText(table.item(row, 1).text())
+        self.ui.txtBugDetails.setText(table.item(row, 2).text())
+        self.ui.txtBugDetails.setText(table.item(row, 3).text())
 
     def get_fields_admins(self):
         fields={
@@ -66,13 +93,19 @@ class DashboardW:
         return(fields)
 
     def clear_fields_listeners(self):
-        pass
+        self.ui.cmbListenersUserName.setCurrentIndex(0)
+        self.ui.cmbListenersBugSource.setCurrentIndex(0)
 
     def populate_fields_listeners(self):
-        pass
+        table = self.ui.tblwListeners
+        row = table.selectedIndexes()[-1].row()
 
-    def set_fields_listeners(self):
-        pass
+        index = self.ui.cmbListenersUserName.findText(table.item(row, 1).text(), QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.ui.cmbListenersUserName.setCurrentIndex(index)
+        index = self.ui.cmbListenersBugSource.findText(table.item(row, 2).text(), QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.ui.cmbListenersBugSource.setCurrentIndex(index)
 
     def get_fields_listeners(self):
         fields={
@@ -82,13 +115,19 @@ class DashboardW:
         return(fields)
 
     def clear_fields_backup(self):
-        pass
+        self.ui.cmbListener.setCurrentIndex(0)
+        self.ui.cmbBackup.setCurrentIndex(0)
 
     def populate_fields_backup(self):
-        pass
+        table = self.ui.tblwBackup
+        row = table.selectedIndexes()[-1].row()
 
-    def set_fields_backup(self):
-        pass
+        index = self.ui.cmbListener.findText(table.item(row, 1).text(), QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.ui.cmbListener.setCurrentIndex(index)
+        index = self.ui.cmbBackup.findText(table.item(row, 2).text(), QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.ui.cmbBackup.setCurrentIndex(index)
 
     def get_fields_backup(self):
         fields={
@@ -154,11 +193,13 @@ class Controller:
         records = self.dbc.get_bug_records()["resultset"]
         table = self.dashboard.ui.tblwBugs
         self.refresh_table(table, records)
+        self.refresh_combo_boxes_sources()
 
     def refresh_table_admins(self):
         records = self.dbc.get_admin_records()["resultset"]
         table = self.dashboard.ui.tblwAdmin
         self.refresh_table(table, records)
+        self.refresh_combo_boxes_admins()
 
     def refresh_table_listeners(self):
         records = self.dbc.get_listener_records()["resultset"]
@@ -181,6 +222,21 @@ class Controller:
             for r in record.values():
                 table.setItem(nextRow,c,QtWidgets.QTableWidgetItem(str(r)))
                 c+=1
+
+    def refresh_combo_boxes_admins(self):
+        devs = self.dbc.get_distinct_admins()
+        self.dashboard.ui.cmbListener.clear()
+        self.dashboard.ui.cmbBackup.clear()
+        self.dashboard.ui.cmbListenersUserName.clear()
+        self.dashboard.ui.cmbListener.addItems([ _["devUserName"] for _ in devs["resultset"]])
+        self.dashboard.ui.cmbBackup.addItems([ _["devUserName"] for _ in devs["resultset"]])
+        self.dashboard.ui.cmbListenersUserName.addItems([ _["devUserName"] for _ in devs["resultset"]])
+
+    def refresh_combo_boxes_sources(self):
+        bugSources = self.dbc.get_distinct_bug_sources()
+        self.dashboard.ui.cmbListenersBugSource.clear()
+        self.dashboard.ui.cmbListenersBugSource.addItems([ _["bugSource"] for _ in bugSources["resultset"]])
+
     ###########################
 
     ##Button functions##

@@ -107,3 +107,13 @@ class DatabaseConnector:
         message=f'''DELETE FROM backupListeners WHERE rowid="{rowID}"
         '''
         return(self.postClient.send(message))
+
+    def get_distinct_admins(self):
+        message=f'''SELECT DISTINCT devUserName FROM devs
+        '''
+        return(self.postClient.send(message))
+
+    def get_distinct_bug_sources(self):
+        message=f'''SELECT DISTINCT bugSource FROM bugs
+        '''
+        return(self.postClient.send(message))
