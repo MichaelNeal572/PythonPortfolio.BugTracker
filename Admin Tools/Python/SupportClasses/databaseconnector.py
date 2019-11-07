@@ -118,12 +118,6 @@ class DatabaseConnector:
         '''
         return(self.postClient.send(message))
 
-    def error_check_dev_username(self, username):
-        message=f'''SELECT EXISTS(SELECT devUserName FROM devs
-        WHERE devUserName="{username}") AS found;
-        '''
-        return(self.postClient.send(message))
-
     def check_user_login(self, username, password):
         message=f'''SELECT EXISTS(SELECT devUserName, devPassword FROM devs
         WHERE devUserName="{username}" AND devPassword="{password}") AS found;
