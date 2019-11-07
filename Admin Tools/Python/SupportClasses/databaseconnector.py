@@ -104,16 +104,28 @@ class DatabaseConnector:
         return(self.postClient.send(message))
 
     def delete_backup_record(self, rowID):
-        message=f'''DELETE FROM backupListeners WHERE rowid="{rowID}"
+        message=f'''DELETE FROM backupListeners WHERE rowid="{rowID}";
         '''
         return(self.postClient.send(message))
 
     def get_distinct_admins(self):
-        message=f'''SELECT DISTINCT devUserName FROM devs
+        message=f'''SELECT DISTINCT devUserName FROM devs;
         '''
         return(self.postClient.send(message))
 
     def get_distinct_bug_sources(self):
         message=f'''SELECT DISTINCT bugSource FROM bugs
+        '''
+        return(self.postClient.send(message))
+
+    def error_check_dev_username(self, username):
+        message=f'''SELECT EXISTS(SELECT devUserName FROM devs
+        WHERE devUserName="{username}") AS found;
+        '''
+        return(self.postClient.send(message))
+
+    def check_user_login(self, username, password):
+        message=f'''SELECT EXISTS(SELECT devUserName, devPassword FROM devs
+        WHERE devUserName="{username}" AND devPassword="{password}") AS found;
         '''
         return(self.postClient.send(message))

@@ -27,10 +27,11 @@ def my_logger(func):
 			
 			details = e
 			source = func.__name__
-			dateCreated = datetime.datetime.now()
+			dateCreated = datetime.date.today()
 			status = "NEW"
 			expectedResolution = "TBD"
-			insert_bug_record(details, args, kwargs, source, dateCreated, status, expectedResolution)
+			print(insert_bug_record(details, args, kwargs, source, dateCreated, status, expectedResolution))
+			
 			return("Exception Thrown")
 
 	return wrapper

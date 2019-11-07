@@ -4,6 +4,34 @@ import datetime
 from dateutil import parser
 from SupportClasses import dashboard, login, databaseconnector
 
+class User:
+    def __init__(self, username="", password = ""):
+        self.username = username
+        self.password = password
+
+    def set_user(self, username, password):
+        self.__init__(username, password)
+
+    def check_user(self, username):
+        return (username == self.username)
+
+class ErrorW:
+    def __init__(self):
+        self.window = QtWidgets.QMessageBox()
+
+
+    def showMessage(self, message, details = "", type = ""):
+        self.window.setWindowTitle("");
+        self.window.setText(message);
+        self.window.setDetailedText(details);
+        if type=="Warning":
+            self.window.setIcon(QtWidgets.QMessageBox.Warning)
+        elif type=="Information":
+            self.window.setIcon(QtWidgets.QMessageBox.Information)
+        elif type =="Critical":
+            self.window.setIcon(QtWidgets.QMessageBox.Critical)
+        self.window.show()
+
 class LoginW:
     def __init__(self):
         self.window = login.QtWidgets.QMainWindow()
@@ -11,11 +39,25 @@ class LoginW:
         self.ui.setupUi(self.window)
 
     def get_fields(self):
+        check = {
+            "safe":True,
+            "message":""
+        }
+
         fields={
             "username":self.ui.txtUsername.text(),
             "password":self.ui.txtPassword.text()
         }
-        return(fields)
+
+        if(fields["username"]==""):
+            check["safe"]=False
+            check["message"]="Please Enter Username"
+
+        elif(fields["password"]==""):
+            check["safe"]=False
+            check["message"]="Please Enter Password"
+
+        return(check, fields)
 
 class DashboardW:
     def __init__(self):
@@ -51,13 +93,19 @@ class DashboardW:
             self.ui.dteBugResolution.setDateTime(parser.parse(table.item(row, 6).text()))
             self.ui.rdoBugKnown.setChecked(True)
         
-
-
     def get_fields_bugs(self):
         if (self.ui.rdoBugUnknown.isChecked()):
             resolution_temp="TBD"
         elif(self.ui.rdoBugKnown.isChecked()):
             resolution_temp=self.ui.dteBugResolution.dateTime().toPyDateTime()
+        else:
+            resolution_temp=None
+        
+        check = {
+            "safe":True,
+            "message":""
+        }
+
         fields={
             "details":self.ui.txtBugDetails.text(),
             "args":self.ui.txtBugArgs.text(),
@@ -67,7 +115,21 @@ class DashboardW:
             "status":str(self.ui.cmbBugStatus.currentText()),
             "expected_resolution":resolution_temp
         }
-        return(fields)
+
+        if(fields["details"]==""):
+            check["safe"]=False
+            check["message"]="Please enter details"
+        if(fields["source"]==""):
+            check["safe"]=False
+            check["message"]="Please enter a source"
+        if(fields["username"]==""):
+            check["safe"]=False
+            check["message"]="Please enter a username"
+        if(fields["expected_resolution"]==None):
+            check["safe"]=False
+            check["message"]="Please check a radio button for expected resolution"
+
+        return(check, fields)
 
     def clear_fields_admins(self):
         self.ui.txtAdminUserName.setText("")
@@ -84,13 +146,35 @@ class DashboardW:
         self.ui.txtBugDetails.setText(table.item(row, 3).text())
 
     def get_fields_admins(self):
+        check = {
+            "safe":True,
+            "message":""
+        }
+
         fields={
             "username":self.ui.txtAdminUserName.text(),
             "firstname":self.ui.txtAdminFirstName.text(),
             "lastname":self.ui.txtAdminLastName.text(),
             "password":self.ui.txtAdminPassword.text()
         }
-        return(fields)
+
+        if(fields["username"]==""):
+            check["safe"]=False
+            check["message"]="Please enter a username"
+        if(fields["firstname"]==""):
+            check["safe"]=False
+            check["message"]="Please enter a firstname"
+        if(fields["lastname"]==""):
+            check["safe"]=False
+            check["message"]="Please enter a username"
+        if(fields["password"]==""):
+            check["safe"]=False
+            check["message"]="Please enter a password"
+        if(len(fields["password"])<8):
+            check["safe"]=False
+            check["message"]="Your password should be at least 8 characters long"
+
+        return(check, fields)
 
     def clear_fields_listeners(self):
         self.ui.cmbListenersUserName.setCurrentIndex(0)
@@ -108,11 +192,17 @@ class DashboardW:
             self.ui.cmbListenersBugSource.setCurrentIndex(index)
 
     def get_fields_listeners(self):
+        check = {
+            "safe":True,
+            "message":""
+        }
+
         fields={
             "username":str(self.ui.cmbListenersUserName.currentText()),
             "bug_source":str(self.ui.cmbListenersBugSource.currentText())
         }
-        return(fields)
+
+        return(check, fields)
 
     def clear_fields_backup(self):
         self.ui.cmbListener.setCurrentIndex(0)
@@ -130,29 +220,44 @@ class DashboardW:
             self.ui.cmbBackup.setCurrentIndex(index)
 
     def get_fields_backup(self):
+        check = {
+            "safe":True,
+            "message":""
+        }
+        
         fields={
             "listener":str(self.ui.cmbListener.currentText()),
             "backup":str(self.ui.cmbBackup.currentText())
         }
-        return(fields)
+        
+        if(fields["listener"]==fields["backup"]):
+            check["safe"]=False
+            check["message"]="Backup and listener cannot be the same user"
+        
+        return(check, fields)
     ######################
 
 class Controller:
     def __init__(self):
         self.dbc=databaseconnector.DatabaseConnector()
+        self.currentUser = User()
 
         self.login = LoginW()
         self.dashboard = DashboardW()
+        self.errorDisplay = ErrorW()
+        
         self.connect_buttons_dashboard()
         self.connect_buttons_login()
     
     ##Button connections##  
     def connect_buttons_login(self):
-        self.login.ui.btnLogin.clicked.connect(self.show_dashboard)
+        self.login.ui.btnLogin.clicked.connect(self.log_in)
+        self.login.ui.btnExit.clicked.connect(self.exit_program)
         
     def connect_buttons_dashboard(self):
         self.dashboard.ui.actLogOut.triggered.connect(self.show_login)
         self.dashboard.ui.actionRefresh.triggered.connect(self.refresh_tables)
+        self.dashboard.ui.actExit.triggered.connect(self.exit_program)
         
         self.dashboard.ui.tblwBugs.clicked.connect(self.dashboard.populate_fields_bugs)
         self.dashboard.ui.tblwAdmin.clicked.connect(self.dashboard.populate_fields_admins)
@@ -182,6 +287,32 @@ class Controller:
 
     ######################
 
+    ##Window Change functions##
+    def show_login(self):
+        self.login.window.show()
+        self.dashboard.window.close()
+
+    def show_dashboard(self):
+        self.dashboard.window.show()
+        self.login.window.close()
+        self.refresh_tables()
+
+    def log_in(self):
+        check, fields = self.login.get_fields()
+        if(check["safe"]):
+            records = self.dbc.check_user_login(fields["username"], fields["password"])["resultset"]
+            if records[0]["found"]==1:
+                self.currentUser.set_user(username=fields["username"], password=fields["password"])
+            self.show_dashboard()
+        else:
+            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
+        
+
+    def exit_program(self):
+        sys.exit()
+
+    ###########################
+
     ##Refresh table displays##
     def refresh_tables(self):
         self.refresh_table_bugs()
@@ -190,26 +321,42 @@ class Controller:
         self.refresh_table_backups()
 
     def refresh_table_bugs(self):
-        records = self.dbc.get_bug_records()["resultset"]
-        table = self.dashboard.ui.tblwBugs
-        self.refresh_table(table, records)
-        self.refresh_combo_boxes_sources()
+        reply = self.dbc.get_bug_records()
+        if reply["status"]=="Success":
+            records = reply["resultset"]
+            table = self.dashboard.ui.tblwBugs
+            self.refresh_table(table, records)
+            self.refresh_combo_boxes_sources()
+        else:
+            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
 
     def refresh_table_admins(self):
-        records = self.dbc.get_admin_records()["resultset"]
-        table = self.dashboard.ui.tblwAdmin
-        self.refresh_table(table, records)
-        self.refresh_combo_boxes_admins()
+        reply = self.dbc.get_admin_records()
+        if reply["status"]=="Success":
+            records = reply["resultset"]
+            table = self.dashboard.ui.tblwAdmin
+            self.refresh_table(table, records)
+            self.refresh_combo_boxes_admins()
+        else:
+            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
 
     def refresh_table_listeners(self):
-        records = self.dbc.get_listener_records()["resultset"]
-        table = self.dashboard.ui.tblwListeners
-        self.refresh_table(table, records)
+        reply = self.dbc.get_listener_records()
+        if reply["status"]=="Success":
+            records = reply["resultset"]
+            table = self.dashboard.ui.tblwListeners
+            self.refresh_table(table, records)
+        else:
+            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
 
     def refresh_table_backups(self):
-        records = self.dbc.get_backup_records()["resultset"]
-        table = self.dashboard.ui.tblwBackup
-        self.refresh_table(table, records)
+        reply = self.dbc.get_backup_records()
+        if reply["status"]=="Success":
+            records = reply["resultset"]
+            table = self.dashboard.ui.tblwBackup
+            self.refresh_table(table, records)
+        else:
+            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
 
     def refresh_table(self, table, records):
         for i in range(table.rowCount())[::-1]:
@@ -241,108 +388,170 @@ class Controller:
 
     ##Button functions##
     def insert_bug(self):
-        fields = self.dashboard.get_fields_bugs()
-        self.dbc.insert_bug_record(details=fields["details"], args=fields["args"], kwargs=fields["kwargs"], source=fields["source"], 
-            dateCreated=fields["date_created"], status=fields["status"], expectedResolution=fields["expected_resolution"])
-        self.refresh_table_bugs()
+        check, fields = self.dashboard.get_fields_bugs()
+        if(check["safe"]):
+            self.dbc.insert_bug_record(details=fields["details"], args=fields["args"], kwargs=fields["kwargs"], source=fields["source"], 
+                dateCreated=fields["date_created"], status=fields["status"], expectedResolution=fields["expected_resolution"])
+            self.refresh_table_bugs()
+        else:
+            self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
         
     def insert_admin(self):
-        fields = self.dashboard.get_fields_admins()
-        table = self.dashboard.ui.tblwAdmin
-        self.dbc.insert_admin_record(username=fields["username"], firstname=fields["firstname"], lastname=fields["lastname"], 
-            password=fields["password"])
-        self.refresh_table_admins()
+        check, fields = self.dashboard.get_fields_admins()
+        if(check["safe"]):
+            self.dbc.insert_admin_record(username=fields["username"], firstname=fields["firstname"], lastname=fields["lastname"], 
+                password=fields["password"])
+            self.refresh_table_admins()
+        else:
+            self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
         
     def insert_listener(self):
-        fields = self.dashboard.get_fields_listeners()
-        table = self.dashboard.ui.tblwListeners
-        self.dbc.insert_listener_record(username=fields["username"], source=fields["bug_source"])
-        self.refresh_table_listeners()
+        check, fields = self.dashboard.get_fields_listeners()
+        if(check["safe"]):
+            self.dbc.insert_listener_record(username=fields["username"], source=fields["bug_source"])
+            self.refresh_table_listeners()
+        else:
+            self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
         
     def insert_backup(self):
-        fields = self.dashboard.get_fields_backup()
-        table = self.dashboard.ui.tblwBackup
-        self.dbc.insert_backup_record(backupDevID=fields["backup"], devID=fields["listener"])
-        self.refresh_table_backups()
+        check, fields = self.dashboard.get_fields_backup()
+        if(check["safe"]):
+            self.dbc.insert_backup_record(backupDevID=fields["backup"], devID=fields["listener"])
+            self.refresh_table_backups()
+        else:
+            self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
 
     def update_bug(self):
-        fields = self.dashboard.get_fields_bugs()
-        table = self.dashboard.ui.tblwBugs
-        row = table.currentItem().row()
-        fields["rowid"] = table.item(row, 0).text()
-        self.dbc.update_bug_record(rowID=fields["rowid"], details=fields["details"], args=fields["args"], 
-            kwargs=fields["kwargs"], source=fields["source"], dateCreated=fields["date_created"], status=fields["status"], 
-            expectedResolution=fields["expected_resolution"])
-        self.refresh_table_bugs()
+        check, fields = self.dashboard.get_fields_bugs()
+        if(check["safe"]):
+            table = self.dashboard.ui.tblwBugs
+            row = table.currentItem().row()
+            fields["rowid"] = table.item(row, 0).text()
+            self.dbc.update_bug_record(rowID=fields["rowid"], details=fields["details"], args=fields["args"], 
+                kwargs=fields["kwargs"], source=fields["source"], dateCreated=fields["date_created"], status=fields["status"], 
+                expectedResolution=fields["expected_resolution"])
+            self.refresh_table_bugs()
+        else:
+            self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
 
     def update_admin(self):
-        fields = self.dashboard.get_fields_admins()
-        table = self.dashboard.ui.tblwAdmin
-        row = table.currentItem().row()
-        fields["rowid"] = table.item(row, 0).text()
-        self.dbc.update_admin_record(rowID=fields["rowid"], username=fields["username"], firstname=fields["firstname"], 
-            lastname=fields["lastname"], password=fields["password"])
-        self.refresh_table_admins()
+        check, fields = self.dashboard.get_fields_admins()
+        if(check["safe"]):
+            table = self.dashboard.ui.tblwAdmin
+            row = table.currentItem().row()
+            fields["rowid"] = table.item(row, 0).text()
+            self.dbc.update_admin_record(rowID=fields["rowid"], username=fields["username"], firstname=fields["firstname"], 
+                lastname=fields["lastname"], password=fields["password"])
+            self.refresh_table_admins()
+        else:
+            self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
 
     def update_listener(self):
-        fields = self.dashboard.get_fields_listeners()
-        table = self.dashboard.ui.tblwListeners
-        row = table.currentItem().row()
-        fields["rowid"] = table.item(row, 0).text()
-        self.dbc.update_listener_record(rowID=fields["rowid"], username=fields["username"], source=fields["bug_source"])
-        self.refresh_table_listeners()
+        check, fields = self.dashboard.get_fields_listeners()
+        if(check["safe"]):
+            table = self.dashboard.ui.tblwListeners
+            row = table.currentItem().row()
+            fields["rowid"] = table.item(row, 0).text()
+            self.dbc.update_listener_record(rowID=fields["rowid"], username=fields["username"], source=fields["bug_source"])
+            self.refresh_table_listeners()
+        else:
+            self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
 
     def update_backup(self):
-        fields = self.dashboard.get_fields_backup()
-        table = self.dashboard.ui.tblwBackup
-        row = table.currentItem().row()
-        fields["rowid"] = table.item(row, 0).text()
-        self.dbc.update_backup_record(rowID=fields["rowid"], backupDevID=fields["backup"], devID=fields["listener"])
-        self.refresh_table_backups()
+        check, fields = self.dashboard.get_fields_backup()
+        if(check["safe"]):
+            table = self.dashboard.ui.tblwBackup
+            row = table.currentItem().row()
+            fields["rowid"] = table.item(row, 0).text()
+            self.dbc.update_backup_record(rowID=fields["rowid"], backupDevID=fields["backup"], devID=fields["listener"])
+            self.refresh_table_backups()
+        else:
+            self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
 
     def delete_bug(self):
         fields = {}
+        check = {
+            "safe":True,
+            "message":""
+        }
         table = self.dashboard.ui.tblwBugs
         row = table.currentItem().row()
-        fields["rowid"] = table.item(row, 0).text()
-        self.dbc.delete_bug_record(rowID=fields["rowid"])
-        self.refresh_table_bugs()
+        
+        if not row>-1:
+            check["safe"]=False
+            check["message"]="Please select a record to delete"
+        
+        if(check["safe"]):
+            fields["rowid"] = table.item(row, 0).text()
+            self.dbc.delete_bug_record(rowID=fields["rowid"])
+            self.refresh_table_bugs()
+        else:
+            self.errorDisplay.showMessage(message="Please check input", details=check["message"], type ="Warning")
 
     def delete_admin(self):
         fields = {}
+        check = {
+            "safe":True,
+            "message":""
+        }
         table = self.dashboard.ui.tblwAdmin
         row = self.dashboard.ui.tblwBugs.currentItem().row()
-        fields["rowid"] = self.dashboard.ui.tblwAdmin.item(row, 0).text()
-        self.dbc.delete_dev_record(rowID=fields["rowid"])
-        self.refresh_table_admins()
+        
+        if not row>-1:
+            check["safe"]=False
+            check["message"]="Please select a record to delete"
+
+        if self.currentUser.check_user(table.item(row, 0).text()):
+            check["safe"]=False
+            check["message"]="You cannot remove your own record. Please contact another admin"
+
+        if(check["safe"]):
+            fields["rowid"] = self.dashboard.ui.tblwAdmin.item(row, 0).text()
+            self.dbc.delete_dev_record(rowID=fields["rowid"])
+            self.refresh_table_admins()
+        else:
+            self.errorDisplay.showMessage(message="Please check input", details=check["message"], type ="Warning")
 
     def delete_listener(self):
         fields = {}
+        check = {
+            "safe":True,
+            "message":""
+        }
         table = self.dashboard.ui.tblwListeners
         row = table.currentItem().row()
-        fields["rowid"] = table.item(row, 0).text()
-        self.dbc.delete_listener_record(rowid=fields["rowid"])
-        self.refresh_table_listeners()
+
+        if not row>-1:
+            check["safe"]=False
+            check["message"]="Please select a record to delete"
+
+        if(check["safe"]):
+            fields["rowid"] = table.item(row, 0).text()
+            self.dbc.delete_listener_record(rowid=fields["rowid"])
+            self.refresh_table_listeners()
+        else:
+            self.errorDisplay.showMessage(message="Please check input", details=check["message"], type ="Warning")
 
     def delete_backup(self):
         fields = {}
+        check = {
+            "safe":True,
+            "message":""
+        }
         table = self.dashboard.ui.tblwBackup
         row = table.currentItem().row()
-        fields["rowid"] = table.item(row, 0).text()
-        self.dbc.delete_backup_record(fields["rowid"])
-        self.refresh_table_backups()
 
-    ###########################
+        if not row>-1:
+            check["safe"]=False
+            check["message"]="Please select a record to delete"
 
-    ##Window Change functions##
-    def show_login(self):
-        self.login.window.show()
-        self.dashboard.window.close()
+        if(check["safe"]):
+            fields["rowid"] = table.item(row, 0).text()
+            self.dbc.delete_backup_record(fields["rowid"])
+            self.refresh_table_backups()
+        else:
+            self.errorDisplay.showMessage(message="Please check input", details=check["message"], type ="Warning")
 
-    def show_dashboard(self):
-        self.dashboard.window.show()
-        self.login.window.close()
-        self.refresh_tables()
     ###########################
 
 def main():
