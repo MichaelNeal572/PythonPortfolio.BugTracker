@@ -1,4 +1,18 @@
 const http = require('http');
+const sqlite3 = require('sqlite3').verbose();
+
+let db = new sqlite3.Database(':memory:', (err) => {
+	if (err) {
+		return console.error(err.message);
+	}
+});
+
+db.close((err) =>{
+	if(err) {
+		return console.error(err.message);
+	}
+	console.log('Close the database connection')
+});
 
 const hostname = '127.0.0.1';
 const port = 3000;
