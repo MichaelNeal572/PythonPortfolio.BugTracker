@@ -1,28 +1,62 @@
 const http = require('http');
 const sqlite3 = require('sqlite3').verbose();
 
-let db = new sqlite3.Database(':memory:', (err) => {
-	if (err) {
-		return console.error(err.message);
+class DBHandler{
+	constructor(){
+
 	}
-});
-
-db.close((err) =>{
-	if(err) {
-		return console.error(err.message);
+	database_connect(){
+	this.db = new sqlite3.Database(':memory:', (err) => {
+		if (err) {
+			return console.error(err.message);
+		}
+		});
 	}
-	console.log('Close the database connection')
-});
 
-const hostname = '127.0.0.1';
-const port = 3000;
+	database_disconnect(){
+		this.db.close((err) =>{
+		if(err) {
+			return console.error(err.message);
+		}
+		console.log('Close the database connection')
+		});
+	}
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World\n');
-});
+}
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+class HttpRequestHandler{
+	constructor(){
+		this.hostname = '127.0.0.1';
+		this.port = 3000;
+	}
+
+	start(){
+		const server = http.createServer((req, res) => {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'text/plain');
+			res.end('Hello World\n');
+		});
+
+		server.listen(this.port, this.hostname, () => {
+			console.log(`Server running at http://${this.hostname}:${this.port}/`);
+		});
+	}
+}
+
+class Controller{
+	constructor(){
+		this.dbh = new DBHandler();
+		this.hrh = new HttpRequestHandler();
+	}
+	start(){
+		this.dbh.database_connect();
+		this.hrh.start();
+		console.log('test')
+	}
+}
+
+main = new Controller()
+main.start()
+
+
+
