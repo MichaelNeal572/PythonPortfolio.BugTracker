@@ -3,7 +3,7 @@ import json
 
 class POSTClient():
     def __init__(self):
-        self.URL="http://192.168.8.201:1880/BugTrackerCRUD"
+        self.URL="http://localhost:3000"
 
     ##Sends the prepared messages to the available urls and returns the response object##
     def send(self, message):
