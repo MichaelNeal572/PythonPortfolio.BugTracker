@@ -1,13 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-
 import sqlite3
-
-conn = sqlite3.connect('employee.db')
-
-c = conn.cursor()
-
 @csrf_exempt
 def home(request):
 	if request.method =="POST":
@@ -17,6 +11,8 @@ def home(request):
 ##CREATE/DROP STATEMENTS##
 @csrf_exempt
 def create_tables(request):
+	conn = sqlite3.connect('employee.db')
+	c = conn.cursor()
 	try:
 		with conn:
 			c.execute('''
@@ -58,7 +54,7 @@ def create_tables(request):
 
 @csrf_exempt
 def drop_tables(request):
-	with conn:
+	pass
 
 
 
