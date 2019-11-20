@@ -14,28 +14,65 @@ def home(request):
 		print(request.POST)
 		return HttpResponse('Test')
 
-def create_table_bugs(request):
-	pass
+##CREATE/DROP STATEMENTS##
+@csrf_exempt
+def create_tables(request):
+	try:
+		with conn:
+			c.execute('''
+				CREATE TABLE bugs(
+					bugDetails text NOT NULL,
+					bugArguments text NOT NULL,
+					bugSource text NOT NULL,
+					bugDateCreated text NOT NULL,
+					bugStatus text NOT NULL,
+					bugExpectedResolution text NOT NULL
+				)
+				''')
+			c.execute('''
+				CREATE TABLE devs(
+					devUserName text PRIMARY KEY NOT NULL,
+					devFirstName text NOT NULL,
+					devLastName text NOT NULL,
+					devEmail text,
+					devPassword text NOT NULL
+				)
+				''')
+			c.execute('''
+				CREATE TABLE listeners(
+					devUserName int REFERENCES devs(devUserName),
+					bugSource int REFERENCES bugs(bugSource)
+				)
+				''')
+			c.execute('''
+				CREATE TABLE backupListeners(
+					backupDevID int REFERENCES devs(devUserName) NOT NULL,
+					devID int REFERENCES devs(devUserName) NOT NULL
+				)
+				''')
+	except Exception as e:
+		return HttpResponse(str(e))
+	else:
+		return HttpResponse('Success')
 
-def drop_table_bugs(request):
-	pass
 
-def create_table_devs(request):
-	pass
+@csrf_exempt
+def drop_tables(request):
+	with conn:
 
-def drop_table_devs(request):
-	pass
 
-def create_table_listeners(request):
-	pass
 
-def drop_table_listeners(request):
-	pass
+##########################
 
-def create_table_backups(request):
-	pass
+##INSERT##
 
-def drop_table_backups(request):
-	pass
+##UPDATE##
+
+##DELETE##
+
+##READ##
+
+##OTHER##
+
 
 
