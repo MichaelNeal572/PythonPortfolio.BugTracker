@@ -300,8 +300,8 @@ class Controller:
     def log_in(self):
         check, fields = self.login.get_fields()
         if(check["safe"]):
-            records = self.dbc.check_user_login(fields["username"], fields["password"])["resultset"]
-            if records[0]["found"]==1:
+            records = self.dbc.check_user_login(fields["username"], fields["password"])["result"]
+            if records==1:
                 self.currentUser.set_user(username=fields["username"], password=fields["password"])
                 self.show_dashboard()
             else:
@@ -325,40 +325,40 @@ class Controller:
     def refresh_table_bugs(self):
         reply = self.dbc.get_bug_records()
         if reply["status"]=="Success":
-            records = reply["resultset"]
+            records = reply["result"]
             table = self.dashboard.ui.tblwBugs
             self.refresh_table(table, records)
             self.refresh_combo_boxes_sources()
         else:
-            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
+            self.errorDisplay.showMessage(message="Database Error", details=reply["result"], type ="Warning")
 
     def refresh_table_admins(self):
         reply = self.dbc.get_admin_records()
         if reply["status"]=="Success":
-            records = reply["resultset"]
+            records = reply["result"]
             table = self.dashboard.ui.tblwAdmin
             self.refresh_table(table, records)
             self.refresh_combo_boxes_admins()
         else:
-            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
+            self.errorDisplay.showMessage(message="Database Error", details=reply["result"], type ="Warning")
 
     def refresh_table_listeners(self):
         reply = self.dbc.get_listener_records()
         if reply["status"]=="Success":
-            records = reply["resultset"]
+            records = reply["result"]
             table = self.dashboard.ui.tblwListeners
             self.refresh_table(table, records)
         else:
-            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
+            self.errorDisplay.showMessage(message="Database Error", details=reply["result"], type ="Warning")
 
     def refresh_table_backups(self):
         reply = self.dbc.get_backup_records()
         if reply["status"]=="Success":
-            records = reply["resultset"]
+            records = reply["result"]
             table = self.dashboard.ui.tblwBackup
             self.refresh_table(table, records)
         else:
-            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
+            self.errorDisplay.showMessage(message="Database Error", details=reply["result"], type ="Warning")
 
     def refresh_table(self, table, records):
         for i in range(table.rowCount())[::-1]:
@@ -368,23 +368,26 @@ class Controller:
             nextRow = table.rowCount()
             table.insertRow(nextRow)
             c=0
-            for r in record.values():
-                table.setItem(nextRow,c,QtWidgets.QTableWidgetItem(str(r)))
-                c+=1
+            try:
+                for r in record.values():
+                    table.setItem(nextRow,c,QtWidgets.QTableWidgetItem(str(r)))
+                    c+=1
+            except Exception:
+                pass
 
     def refresh_combo_boxes_admins(self):
         devs = self.dbc.get_distinct_admins()
         self.dashboard.ui.cmbListener.clear()
         self.dashboard.ui.cmbBackup.clear()
         self.dashboard.ui.cmbListenersUserName.clear()
-        self.dashboard.ui.cmbListener.addItems([ _["devUserName"] for _ in devs["resultset"]])
-        self.dashboard.ui.cmbBackup.addItems([ _["devUserName"] for _ in devs["resultset"]])
-        self.dashboard.ui.cmbListenersUserName.addItems([ _["devUserName"] for _ in devs["resultset"]])
+        self.dashboard.ui.cmbListener.addItems([ _[0] for _ in devs["result"]])
+        self.dashboard.ui.cmbBackup.addItems([ _[0] for _ in devs["result"]])
+        self.dashboard.ui.cmbListenersUserName.addItems([ _[0] for _ in devs["result"]])
 
     def refresh_combo_boxes_sources(self):
         bugSources = self.dbc.get_distinct_bug_sources()
         self.dashboard.ui.cmbListenersBugSource.clear()
-        self.dashboard.ui.cmbListenersBugSource.addItems([ _["bugSource"] for _ in bugSources["resultset"]])
+        self.dashboard.ui.cmbListenersBugSource.addItems([ _["bugSource"] for _ in bugSources["result"]])
 
     ###########################
 

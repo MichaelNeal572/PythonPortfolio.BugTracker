@@ -15,7 +15,7 @@ def home(request):
 @csrf_exempt
 def create_tables(request):
 	if request.method =="POST":
-		conn = sqlite3.connect('employee.db')
+		conn = sqlite3.connect('bugtracker.db')
 		c = conn.cursor()
 		try:
 			with conn:
@@ -50,6 +50,13 @@ def create_tables(request):
 						dev text REFERENCES devs(devUserName) NOT NULL
 					)
 					''')
+				c.execute('''INSERT INTO devs 
+		    		(devUserName, devFirstName, devLastName, devPassword) 
+		    		VALUES 
+		    		(:devUserName, :devFirstName, :devLastName, :devPassword)''', 
+		    		{"devUserName":"test", "devFirstName":"test", 
+		    		"devLastName":"test", "devPassword":"test"})
+
 		except Exception as e:
 			return HttpResponse(str(e))
 		else:
@@ -59,7 +66,7 @@ def create_tables(request):
 @csrf_exempt
 def drop_tables(request):
 	if request.method =="POST":
-		conn = sqlite3.connect('employee.db')
+		conn = sqlite3.connect('bugtracker.db')
 		c = conn.cursor()
 		try:
 			with conn:
@@ -75,7 +82,7 @@ def drop_tables(request):
 @csrf_exempt
 def get_bug_records(request):
 	if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -95,7 +102,7 @@ def get_bug_records(request):
 @csrf_exempt
 def get_admin_records(request):
 	if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -115,7 +122,7 @@ def get_admin_records(request):
 @csrf_exempt
 def get_listener_records(request):
 	if request.method =="POST":    
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -135,7 +142,7 @@ def get_listener_records(request):
 @csrf_exempt
 def get_backup_records(request):
 	if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -156,7 +163,7 @@ def get_backup_records(request):
 @csrf_exempt
 def insert_bug_record(request):
 	if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -179,7 +186,7 @@ def insert_bug_record(request):
 @csrf_exempt
 def insert_admin_record(request):
 	if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -203,7 +210,7 @@ def insert_admin_record(request):
 @csrf_exempt
 def insert_listener_record(request):
 	if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -225,7 +232,7 @@ def insert_listener_record(request):
 @csrf_exempt
 def insert_backup_record(request):
 	if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -248,7 +255,7 @@ def insert_backup_record(request):
 @csrf_exempt
 def update_bug_record(request):
     if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -281,7 +288,7 @@ def update_bug_record(request):
 @csrf_exempt
 def update_admin_record(request):
     if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -310,7 +317,7 @@ def update_admin_record(request):
 @csrf_exempt
 def update_listener_record(request):
     if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -336,7 +343,7 @@ def update_listener_record(request):
 def update_backup_record(request):
     def update_listener_record(request):
 	    if request.method =="POST":
-		    conn = sqlite3.connect('employee.db')
+		    conn = sqlite3.connect('bugtracker.db')
 		    c = conn.cursor()
 		    response = {
 		    "status":"Success",
@@ -362,7 +369,7 @@ def update_backup_record(request):
 @csrf_exempt
 def delete_bug_record(request):
     if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -385,7 +392,7 @@ def delete_bug_record(request):
 @csrf_exempt
 def delete_dev_record(request):
     if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -408,7 +415,7 @@ def delete_dev_record(request):
 @csrf_exempt
 def delete_listener_record(request):
     if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -431,7 +438,7 @@ def delete_listener_record(request):
 @csrf_exempt
 def delete_backup_record(request):
     if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -453,14 +460,28 @@ def delete_backup_record(request):
 
 @csrf_exempt
 def get_distinct_admins(request):
-    message=f'''SELECT DISTINCT devUserName FROM devs;
-    '''
-    return(self.postClient.send(message))
+    if request.method =="POST":
+	    conn = sqlite3.connect('bugtracker.db')
+	    c = conn.cursor()
+	    response = {
+	    "status":"Success",
+	    "result":""
+	    }
+	    try:
+	    	with conn:
+		    	c.execute("SELECT DISTINCT devUserName FROM devs")
+		    	response["result"]=c.fetchall()
+		    	print(response)
+	    except Exception as e:
+	    	response["status"]="Error"
+	    	response["result"]=str(e)
+	    finally:
+	    	return HttpResponse(json.dumps(response))
 
 @csrf_exempt
 def get_distinct_bug_sources(request):
     if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -470,7 +491,7 @@ def get_distinct_bug_sources(request):
 	    	with conn:
 		    	c.execute("SELECT DISTINCT bugSource FROM bugs")
 		    	response["result"]=c.fetchall()
-		    	print(response["result"])
+		    	print(response)
 	    except Exception as e:
 	    	response["status"]="Error"
 	    	response["result"]=str(e)
@@ -480,7 +501,7 @@ def get_distinct_bug_sources(request):
 @csrf_exempt
 def check_user_login(request):
     if request.method =="POST":
-	    conn = sqlite3.connect('employee.db')
+	    conn = sqlite3.connect('bugtracker.db')
 	    c = conn.cursor()
 	    response = {
 	    "status":"Success",
@@ -491,8 +512,8 @@ def check_user_login(request):
 		    	c.execute('''SELECT EXISTS(SELECT devUserName, devPassword FROM devs
     						WHERE devUserName=:username AND devPassword=:password) AS found''', 
 		    		{"username":request.POST["username"], "password":request.POST["password"]})
-		    	response["result"]=c.fetchall()
-		    	print(response["result"])
+		    	response["result"]=c.fetchall()[0][0]
+		    	print(response)
 	    except Exception as e:
 	    	response["status"]="Error"
 	    	response["result"]=str(e)
