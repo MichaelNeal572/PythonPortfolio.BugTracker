@@ -129,4 +129,4 @@ dmypy.json
 #	MDN - Custom Ignores
 ################################
 test.py
-.db
+*.db
