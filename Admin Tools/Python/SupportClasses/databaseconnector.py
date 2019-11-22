@@ -8,118 +8,133 @@ class DatabaseConnector:
 
     ##Read##
     def get_bug_records(self):
-        message = "SELECT rowId, bugDetails, bugArguments, bugSource, bugDateCreated, bugStatus, bugExpectedResolution FROM bugs"
-        return(self.postClient.send(message))
+        message = ""
+        return(self.postClient.send(url = "get-bug-records", message=message))
 
     def get_admin_records(self):
-        message = "SELECT rowId, devUserName, devFirstName, devLastName, devPassword FROM devs"
-        return(self.postClient.send(message))
+        message = ""
+        return(self.postClient.send(url = "get-admin-records", message=message))
 
     def get_listener_records(self):
-        message = "SELECT rowId, devUserName, bugSource FROM listeners"
-        return(self.postClient.send(message))
+        message = ""
+        return(self.postClient.send(url = "get-listener-records", message=message))
 
     def get_backup_records(self):
-        message = "SELECT rowId, backupDevID, devID FROM backupListeners"
-        return(self.postClient.send(message))
+        message = ""
+        return(self.postClient.send(url = "get-backup-records", message=message))
     
     #Insert##
     def insert_bug_record(self, details, args, kwargs, source, dateCreated, status, expectedResolution):
-        message=f'''INSERT INTO bugs (bugDetails, bugArguments, bugSource, bugDateCreated, bugStatus, bugExpectedResolution)
-        VALUES ("{details}", "args: {args} kwargs: {kwargs}", "{source}", "{dateCreated}", "{status}", "{expectedResolution}")
-        '''
-        return(self.postClient.send(message))
+        message = {
+            "details":details, 
+            "args":args, 
+            "kwargs":kwargs, 
+            "source":source, 
+            "dateCreated":dateCreated, 
+            "status":status, 
+            "expectedResolution":expectedResolution
+        }
+        return(self.postClient.send(url = "insert-bug-record", message=message))
 
     def insert_admin_record(self, username, firstname, lastname, password):
-        message=f'''INSERT INTO devs (devUserName, devFirstName, devLastName, devPassword)
-        VALUES ("{username}", "{firstname}", "{lastname}", "{password}")
-        '''
-        return(self.postClient.send(message))
+        message={
+            "username":username, 
+            "firstname":firstname, 
+            "lastname":lastname, 
+            "password":password
+        }
+        return(self.postClient.send(url="insert-admin-record", message=message))
 
     def insert_listener_record(self, username, source):
-        message=f'''INSERT INTO listeners (devUserName, bugSource)
-        VALUES ("{username}", "{source}")
-        '''
-        return(self.postClient.send(message))
+        message={
+            "username":username, 
+            "source":source
+        }
+        return(self.postClient.send(url="insert-listener-record", message=message))
 
-    def insert_backup_record(self, backupDevID, devID):
-        message=f'''INSERT INTO backupListeners (backupDevID, devID)
-        VALUES ("{backupDevID}", "{devID}")
-        '''
-        return(self.postClient.send(message))
+    def insert_backup_record(self, backupDev, dev):
+        message={
+            "backupDev":backupDev, 
+            "dev":dev
+        }
+        return(self.postClient.send(url="insert-backup-record", message=message))
     
     ##Update##
     def update_bug_record(self, rowID, details, args, kwargs, source, dateCreated, status, expectedResolution):
-        message=f'''UPDATE bugs SET
-        bugDetails = "{details}", 
-        bugArguments = "args: {args} kwargs: {kwargs}", 
-        bugSource = "{source}", 
-        bugDateCreated = "{dateCreated}", 
-        bugStatus = "{status}", 
-        bugExpectedResolution = "{expectedResolution}"
-        WHERE rowid = {rowID}
-        '''
-        return(self.postClient.send(message))
+        message={
+            "rowID":rowID, 
+            "details":details, 
+            "args":args, 
+            "kwargs":kwargs, 
+            "source":source, 
+            "dateCreated":dateCreated, 
+            "status":status, 
+            "expectedResolution":expectedResolution
+        }
+        return(self.postClient.send(url="update-bug-record", message=message))
 
     def update_admin_record(self, rowID, username, firstname, lastname, password):
-        message=f'''UPDATE devs SET
-        devUserName = "{username}", 
-        devFirstName = "{firstname}", 
-        devLastName = "{lastname}", 
-        devPassword = "{password}"
-        WHERE rowid = {rowID}
-        '''
-        return(self.postClient.send(message))
+        message={
+            "rowID":rowID, 
+            "username":username, 
+            "firstname":firstname, 
+            "lastname":lastname, 
+            "password":password
+        }
+        return(self.postClient.send(url="update-admin-record", message=message))
 
     def update_listener_record(self, rowID, username, source):
-        message=f'''UPDATE listeners SET
-        devUserName = "{username}", 
-        bugSource = "{source}"
-        WHERE rowid = {rowID}
-        '''
-        return(self.postClient.send(message))
+        message={
+            "rowID":rowID, 
+            "username":username, 
+            "source":source
+        }
+        return(self.postClient.send(url="update-listener-record", message=message))
 
-    def update_backup_record(self, rowID, backupDevID, devID):
-        message=f'''UPDATE backupListeners SET
-        backupDevID = "{backupDevID}", 
-        devID = "{devID}"
-        WHERE rowid = {rowID}
-        '''
-        return(self.postClient.send(message))
+    def update_backup_record(self, rowID, backupDev, dev):
+        message={
+            "rowID":rowID, 
+            "backupDev":backupDev, 
+            "dev":dev
+        }
+        return(self.postClient.send(url="update-backup-record", message=message))
     
     ##Delete##
     def delete_bug_record(self, rowID):
-        message=f'''DELETE FROM bugs WHERE rowid="{rowID}"
-        '''
-        return(self.postClient.send(message))
+        message={
+            "rowID":rowID
+        }
+        return(self.postClient.send(url="delete-bug-record", message=message))
 
     def delete_dev_record(self, rowID):
-        message=f'''DELETE FROM devs WHERE rowid="{rowID}"
-        '''
-        return(self.postClient.send(message))
+        message={
+            "rowID":rowID
+        }
+        return(self.postClient.send(url="delete-dev-record", message=message))
 
     def delete_listener_record(self, rowID):
-        message=f'''DELETE FROM listeners WHERE rowid="{rowID}"
-        '''
-        return(self.postClient.send(message))
+        message={
+            "rowID":rowID
+        }
+        return(self.postClient.send(url="delete-listener-record", message=message))
 
     def delete_backup_record(self, rowID):
-        message=f'''DELETE FROM backupListeners WHERE rowid="{rowID}";
-        '''
-        return(self.postClient.send(message))
+        message={
+            "rowID":rowID
+        }
+        return(self.postClient.send(url="delete-backup-record", message=message))
 
     def get_distinct_admins(self):
-        message=f'''SELECT DISTINCT devUserName FROM devs;
-        '''
-        return(self.postClient.send(message))
+        message=""
+        return(self.postClient.send(url="get-distinct-admins", message=message))
 
     def get_distinct_bug_sources(self):
-        message=f'''SELECT DISTINCT bugSource FROM bugs
-        '''
-        return(self.postClient.send(message))
+        message=""
+        return(self.postClient.send(url="get-distinct-bug-sources", message=message))
 
     def check_user_login(self, username, password):
-        message=f'''SELECT EXISTS(SELECT devUserName, devPassword FROM devs
-        WHERE devUserName="{username}" AND devPassword="{password}") AS found;
-        '''
-        return(self.postClient.send(message))
+        message={
+            "username":username, 
+            "password":password
+        }
+        return(self.postClient.send(url="check-user-login", message=message))

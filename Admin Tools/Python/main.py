@@ -303,9 +303,11 @@ class Controller:
             records = self.dbc.check_user_login(fields["username"], fields["password"])["resultset"]
             if records[0]["found"]==1:
                 self.currentUser.set_user(username=fields["username"], password=fields["password"])
-            self.show_dashboard()
+                self.show_dashboard()
+            else:
+                self.errorDisplay.showMessage(message="Login Error", details="login details did not match any details in our database", type ="Warning")
         else:
-            self.errorDisplay.showMessage(message="Database Error", details=reply["message"], type ="Warning")
+            self.errorDisplay.showMessage(message="Login Error", details="Please enter login details", type ="Warning")
         
 
     def exit_program(self):
