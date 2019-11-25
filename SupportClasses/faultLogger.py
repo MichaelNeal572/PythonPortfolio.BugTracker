@@ -5,10 +5,16 @@ import datetime
 pc = POSTClient.POSTClient()
 
 def insert_bug_record(details, args, kwargs, source, dateCreated, status, expectedResolution):
-        message=f'''INSERT INTO bugs (bugDetails, bugArguments, bugSource, bugDateCreated, bugStatus, bugExpectedResolution)
-        VALUES ("{details}", "args: {args} kwargs: {kwargs}", "{source}", "{dateCreated}", "{status}", "{expectedResolution}")
-        '''
-        return(pc.send(message))
+        message = {
+            "details":details, 
+            "args":args, 
+            "kwargs":kwargs, 
+            "source":source, 
+            "dateCreated":dateCreated, 
+            "status":status, 
+            "expectedResolution":expectedResolution
+        }
+        return(self.pc.send(url = "insert-bug-record", message=message))
 
 
 def my_logger(func):

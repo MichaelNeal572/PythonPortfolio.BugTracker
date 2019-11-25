@@ -79,9 +79,10 @@ class DashboardW:
     def populate_fields_bugs(self):
         table = self.ui.tblwBugs
         row = table.selectedIndexes()[-1].row()
-        self.ui.txtBugDetails.setText(table.item(row, 0).text())
-        self.ui.txtBugArgs.setText(table.item(row, 1).text())
-        self.ui.txtBugKwargs.setText(table.item(row, 2).text())
+        self.ui.txtBugDetails.setText(table.item(row, 1).text())
+        arguements = table.item(row, 2).text()
+        self.ui.txtBugArgs.setText()
+        self.ui.txtBugKwargs.setText()
         self.ui.txtBugSource.setText(table.item(row, 3).text())
         self.ui.deBugDateCreated.setDate(parser.parse(table.item(row, 4).text()))
         index = self.ui.cmbBugStatus.findText(table.item(row, 5).text(), QtCore.Qt.MatchFixedString)
@@ -122,9 +123,6 @@ class DashboardW:
         if(fields["source"]==""):
             check["safe"]=False
             check["message"]="Please enter a source"
-        if(fields["username"]==""):
-            check["safe"]=False
-            check["message"]="Please enter a username"
         if(fields["expected_resolution"]==None):
             check["safe"]=False
             check["message"]="Please check a radio button for expected resolution"
@@ -138,12 +136,13 @@ class DashboardW:
         self.ui.txtAdminPassword.setText("")
 
     def populate_fields_admins(self):
-        table = self.ui.tblwBugs
+        table = self.ui.tblwAdmin
         row = table.selectedIndexes()[-1].row()
-        self.ui.txtBugDetails.setText(table.item(row, 0).text())
-        self.ui.txtBugDetails.setText(table.item(row, 1).text())
-        self.ui.txtBugDetails.setText(table.item(row, 2).text())
-        self.ui.txtBugDetails.setText(table.item(row, 3).text())
+        self.ui.txtAdminUserName.setText(table.item(row, 1).text())
+        self.ui.txtAdminFirstName.setText(table.item(row, 2).text())
+        self.ui.txtAdminLastName.setText(table.item(row, 3).text())
+        self.ui.txtAdminEmail.setText(table.item(row, 4).text())
+        self.ui.txtAdminPassword.setText(table.item(row, 5).text())
 
     def get_fields_admins(self):
         check = {
@@ -155,6 +154,7 @@ class DashboardW:
             "username":self.ui.txtAdminUserName.text(),
             "firstname":self.ui.txtAdminFirstName.text(),
             "lastname":self.ui.txtAdminLastName.text(),
+            "email":self.ui.txtAdminEmail.text(),
             "password":self.ui.txtAdminPassword.text()
         }
 
@@ -369,25 +369,29 @@ class Controller:
             table.insertRow(nextRow)
             c=0
             try:
-                for r in record.values():
+                for r in record:
                     table.setItem(nextRow,c,QtWidgets.QTableWidgetItem(str(r)))
                     c+=1
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"table exception: {str(e)}")
 
     def refresh_combo_boxes_admins(self):
         devs = self.dbc.get_distinct_admins()
         self.dashboard.ui.cmbListener.clear()
         self.dashboard.ui.cmbBackup.clear()
         self.dashboard.ui.cmbListenersUserName.clear()
-        self.dashboard.ui.cmbListener.addItems([ _[0] for _ in devs["result"]])
+        items = [ _[0] for _ in devs["result"]]
+        print(f' items: {items}')
+        self.dashboard.ui.cmbListener.addItems(items)
         self.dashboard.ui.cmbBackup.addItems([ _[0] for _ in devs["result"]])
         self.dashboard.ui.cmbListenersUserName.addItems([ _[0] for _ in devs["result"]])
 
     def refresh_combo_boxes_sources(self):
         bugSources = self.dbc.get_distinct_bug_sources()
         self.dashboard.ui.cmbListenersBugSource.clear()
-        self.dashboard.ui.cmbListenersBugSource.addItems([ _["bugSource"] for _ in bugSources["result"]])
+        items = [ _[0] for _ in bugSources["result"]]
+        print(f' items: {items}')
+        self.dashboard.ui.cmbListenersBugSource.addItems(items)
 
     ###########################
 
@@ -404,8 +408,9 @@ class Controller:
     def insert_admin(self):
         check, fields = self.dashboard.get_fields_admins()
         if(check["safe"]):
-            self.dbc.insert_admin_record(username=fields["username"], firstname=fields["firstname"], lastname=fields["lastname"], 
-                password=fields["password"])
+            result = self.dbc.insert_admin_record(username=fields["username"], firstname=fields["firstname"], lastname=fields["lastname"], 
+                email=fields["email"], password=fields["password"])
+            print(result)
             self.refresh_table_admins()
         else:
             self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
@@ -446,7 +451,7 @@ class Controller:
             row = table.currentItem().row()
             fields["rowid"] = table.item(row, 0).text()
             self.dbc.update_admin_record(rowID=fields["rowid"], username=fields["username"], firstname=fields["firstname"], 
-                lastname=fields["lastname"], password=fields["password"])
+                lastname=fields["lastname"], email=fields["email"], password=fields["password"])
             self.refresh_table_admins()
         else:
             self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")

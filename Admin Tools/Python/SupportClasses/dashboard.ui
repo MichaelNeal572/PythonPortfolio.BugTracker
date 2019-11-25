@@ -27,7 +27,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tbBugs">
        <attribute name="title">
@@ -364,6 +364,11 @@
           </column>
           <column>
            <property name="text">
+            <string>Email</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
             <string>Password</string>
            </property>
           </column>
@@ -386,8 +391,42 @@
             <property name="formAlignment">
              <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
             </property>
-            <item row="0" column="0">
+            <item row="1" column="0">
              <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>First Name: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Last Name: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Email: </string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Password: </string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_14">
               <property name="text">
                <string>User Name: </string>
               </property>
@@ -403,45 +442,21 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>First Name: </string>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="1">
              <widget class="QLineEdit" name="txtAdminFirstName"/>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Last Name: </string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
             </item>
             <item row="2" column="1">
              <widget class="QLineEdit" name="txtAdminLastName"/>
             </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Password: </string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
+            <item row="4" column="1">
              <widget class="QLineEdit" name="txtAdminPassword">
               <property name="echoMode">
                <enum>QLineEdit::Password</enum>
               </property>
              </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="txtAdminEmail"/>
             </item>
            </layout>
           </item>

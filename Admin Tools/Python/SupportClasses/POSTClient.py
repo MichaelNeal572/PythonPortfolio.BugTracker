@@ -3,10 +3,11 @@ import json
 
 class POSTClient():
     def __init__(self):
-        pass
+        self.identifier = 'veeQau9PXTPxDLSfkqASokKC7phAc6vgaREIUDOeIqLS5GoCTFGURkFGDDppCIaG8Vq44yUxslPeoXEf3ExquC6oZddR4qHupVsp'
 
     ##Sends the prepared messages to the available urls and returns the response object##
     def send(self, url, message):
+        message["pcIdentifier"]=self.identifier
         URL = f"http://localhost:8000/{url}/"
         r = requests.post(URL, data=message)
         response={

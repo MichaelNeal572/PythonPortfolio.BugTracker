@@ -3,10 +3,11 @@ import json
 
 class POSTClient():
     def __init__(self):
-        pass
+        self.identifier = 'veeQau9PXTPxDLSfkqASokKC7phAc6vgaREIUDOeIqLS5GoCTFGURkFGDDppCIaG8Vq44yUxslPeoXEf3ExquC6oZddR4qHupVsp'
 
     ##Sends the prepared messages to the available urls and returns the response object##
     def send(self, url, message):
+        message["pcIdentifier"]=self.identifier
         URL = f"http://localhost:8000/{url}/"
         r = requests.post(URL, data=message)
         response={
@@ -19,4 +20,4 @@ class POSTClient():
 if __name__ == "__main__":
     ##TESTING LINES
     cl = POSTClient()
-    print(cl.send(url='create-tables', message='SELECT * FROM bugs'))
+    print(cl.send(url='get-admin-records', message='SELECT * FROM bugs'))

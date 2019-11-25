@@ -8,47 +8,48 @@ class DatabaseConnector:
 
     ##Read##
     def get_bug_records(self):
-        message = ""
+        message = {}
         return(self.postClient.send(url = "get-bug-records", message=message))
 
     def get_admin_records(self):
-        message = ""
+        message = {}
         return(self.postClient.send(url = "get-admin-records", message=message))
 
     def get_listener_records(self):
-        message = ""
+        message = {}
         return(self.postClient.send(url = "get-listener-records", message=message))
 
     def get_backup_records(self):
-        message = ""
+        message = {}
         return(self.postClient.send(url = "get-backup-records", message=message))
     
     #Insert##
     def insert_bug_record(self, details, args, kwargs, source, dateCreated, status, expectedResolution):
+        arguments = f'args: {args}; kwargs: {kwargs};'
         message = {
-            "details":details, 
-            "args":args, 
-            "kwargs":kwargs, 
-            "source":source, 
-            "dateCreated":dateCreated, 
-            "status":status, 
-            "expectedResolution":expectedResolution
+            "bugDetails":details, 
+            "bugArguments":arguments,
+            "bugSource":source, 
+            "bugDateCreated":dateCreated, 
+            "bugStatus":status, 
+            "bugExpectedResolution":expectedResolution
         }
         return(self.postClient.send(url = "insert-bug-record", message=message))
 
-    def insert_admin_record(self, username, firstname, lastname, password):
+    def insert_admin_record(self, username, firstname, lastname, email, password):
         message={
-            "username":username, 
-            "firstname":firstname, 
-            "lastname":lastname, 
-            "password":password
+            "devUsername":username, 
+            "devFirstName":firstname, 
+            "devLastName":lastname, 
+            "devEmail":email,
+            "devPassword":password
         }
         return(self.postClient.send(url="insert-admin-record", message=message))
 
     def insert_listener_record(self, username, source):
         message={
-            "username":username, 
-            "source":source
+            "devUserName":username, 
+            "bugSource":source
         }
         return(self.postClient.send(url="insert-listener-record", message=message))
 
@@ -61,33 +62,34 @@ class DatabaseConnector:
     
     ##Update##
     def update_bug_record(self, rowID, details, args, kwargs, source, dateCreated, status, expectedResolution):
+        arguments = f'args: {args}; kwargs: {kwargs};'
         message={
             "rowID":rowID, 
-            "details":details, 
-            "args":args, 
-            "kwargs":kwargs, 
-            "source":source, 
-            "dateCreated":dateCreated, 
-            "status":status, 
-            "expectedResolution":expectedResolution
+            "bugDetails":details, 
+            "bugArguments":arguments,
+            "bugSource":source, 
+            "bugDateCreated":dateCreated, 
+            "bugStatus":status, 
+            "bugExpectedResolution":expectedResolution
         }
         return(self.postClient.send(url="update-bug-record", message=message))
 
-    def update_admin_record(self, rowID, username, firstname, lastname, password):
+    def update_admin_record(self, rowID, username, firstname, lastname, email, password):
         message={
-            "rowID":rowID, 
-            "username":username, 
-            "firstname":firstname, 
-            "lastname":lastname, 
-            "password":password
+            "rowID":rowID,
+            "devUsername":username, 
+            "devFirstName":firstname, 
+            "devLastName":lastname, 
+            "devEmail":email,
+            "devPassword":password
         }
         return(self.postClient.send(url="update-admin-record", message=message))
 
     def update_listener_record(self, rowID, username, source):
         message={
             "rowID":rowID, 
-            "username":username, 
-            "source":source
+            "devUserName":username, 
+            "bugSource":source
         }
         return(self.postClient.send(url="update-listener-record", message=message))
 
@@ -125,11 +127,11 @@ class DatabaseConnector:
         return(self.postClient.send(url="delete-backup-record", message=message))
 
     def get_distinct_admins(self):
-        message=""
+        message = {}
         return(self.postClient.send(url="get-distinct-admins", message=message))
 
     def get_distinct_bug_sources(self):
-        message=""
+        message = {}
         return(self.postClient.send(url="get-distinct-bug-sources", message=message))
 
     def check_user_login(self, username, password):
