@@ -38,7 +38,7 @@ class DatabaseConnector:
 
     def insert_admin_record(self, username, firstname, lastname, email, password):
         message={
-            "devUsername":username, 
+            "devUserName":username, 
             "devFirstName":firstname, 
             "devLastName":lastname, 
             "devEmail":email,

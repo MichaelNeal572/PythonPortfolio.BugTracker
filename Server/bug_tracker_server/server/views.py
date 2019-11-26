@@ -70,7 +70,6 @@ def home(request):
 def create_tables(request):
 	if request.method =="POST":
 		if request.POST["pcIdentifier"] == securityKey:
-			print(request.POST)
 			return HttpResponse(initialize())
 
 @csrf_exempt
@@ -189,6 +188,7 @@ def insert_bug_record(request):
 			    		(:bugDetails, :bugArguments, :bugSource, :bugDateCreated, :bugStatus, :bugExpectedResolution)''', 
 			    		{"bugDetails":request.POST["bugDetails"], "bugArguments":request.POST["bugArguments"], "bugSource":request.POST["bugSource"], 
 			    		"bugDateCreated":request.POST["bugDateCreated"], "bugStatus":request.POST["bugStatus"], "bugExpectedResolution":request.POST["bugExpectedResolution"]})
+			    	conn.commit()
 		    except Exception as e:
 		    	response["status"]="Error"
 		    	response["result"]=str(e)
@@ -198,7 +198,6 @@ def insert_bug_record(request):
 @csrf_exempt
 def insert_admin_record(request):
 	if request.method =="POST":
-	    print(request.POST["devUsername"])
 	    if request.POST["pcIdentifier"] == securityKey:
 		    conn = sqlite3.connect('bugtracker.db')
 		    c = conn.cursor()
@@ -215,6 +214,7 @@ def insert_admin_record(request):
 			    		{"devUserName":request.POST["devUserName"], "devFirstName":request.POST["devFirstName"], 
 			    		"devLastName":request.POST["devLastName"], "devEmail":request.POST["devEmail"], 
 			    		"devPassword":request.POST["devPassword"]})
+			    	conn.commit()
 		    except Exception as e:
 		    	response["status"]="Error"
 		    	print(e)
@@ -240,6 +240,7 @@ def insert_listener_record(request):
 			    		VALUES 
 			    		(:devUserName, :bugSource)''', 
 			    		{"devUserName":request.POST["devUserName"], "bugSource":request.POST["bugSource"]})
+			    	conn.commit()
 		    except Exception as e:
 		    	response["status"]="Error"
 		    	response["result"]=str(e)
@@ -263,6 +264,7 @@ def insert_backup_record(request):
 			    		VALUES 
 			    		(:backupDev, :dev)''', 
 			    		{"backupDev":request.POST["backupDev"], "dev":request.POST["dev"]})
+			    	conn.commit()
 		    except Exception as e:
 		    	response["status"]="Error"
 		    	response["result"]=str(e)
@@ -298,6 +300,7 @@ def update_bug_record(request):
 			    		"status":request.POST["bugStatus"],
 			    		"expectedResolution":request.POST["bugExpectedResolution"],
 			    		"rowID":request.POST["rowID"]})
+			    	conn.commit()
 		    except Exception as e:
 		    	response["status"]="Error"
 		    	response["result"]=str(e)
@@ -330,6 +333,7 @@ def update_admin_record(request):
 			    		"email":request.POST["devEmail"],
 			    		"password":request.POST["devPassword"],
 			    		"rowID":request.POST["rowID"]})
+			    	conn.commit()
 		    except Exception as e:
 		    	response["status"]="Error"
 		    	response["result"]=str(e)
@@ -356,6 +360,7 @@ def update_listener_record(request):
 			    		{"username":request.POST["devUserName"],
 			    		"bugSource":request.POST["bugSource"],
 			    		"rowID":request.POST["rowID"]})
+			    	conn.commit()
 		    except Exception as e:
 		    	response["status"]="Error"
 		    	response["result"]=str(e)
@@ -364,30 +369,30 @@ def update_listener_record(request):
 
 @csrf_exempt
 def update_backup_record(request):
-    def update_listener_record(request):
-	    if request.method =="POST":
-		    if request.POST["pcIdentifier"] == securityKey:
-			    conn = sqlite3.connect('bugtracker.db')
-			    c = conn.cursor()
-			    response = {
-			    "status":"Success",
-			    "result":""
-			    }
-			    try:
-			    	with conn:
-				    	c.execute('''UPDATE backupListeners SET
-				    		backupDev = :backupDev, 
-						    dev = :dev, 
-						    WHERE rowid = :rowID
-				    		''', 
-				    		{"backupDev":request.POST["backupDev"],
-				    		"dev":request.POST["dev"],
-				    		"rowID":request.POST["rowID"]})
-			    except Exception as e:
-			    	response["status"]="Error"
-			    	response["result"]=str(e)
-			    finally:
-			    	return HttpResponse(json.dumps(response))
+    if request.method =="POST":
+	    if request.POST["pcIdentifier"] == securityKey:
+		    conn = sqlite3.connect('bugtracker.db')
+		    c = conn.cursor()
+		    response = {
+		    "status":"Success",
+		    "result":""
+		    }
+		    try:
+		    	with conn:
+			    	c.execute('''UPDATE backupListeners SET
+			    		backupDev = :backupDev, 
+					    dev = :dev, 
+					    WHERE rowid = :rowID
+			    		''', 
+			    		{"backupDev":request.POST["backupDev"],
+			    		"dev":request.POST["dev"],
+			    		"rowID":request.POST["rowID"]})
+			    	conn.commit()
+		    except Exception as e:
+		    	response["status"]="Error"
+		    	response["result"]=str(e)
+		    finally:
+		    	return HttpResponse(json.dumps(response))
 
 ##Delete##
 @csrf_exempt

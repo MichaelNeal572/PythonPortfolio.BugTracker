@@ -1,6 +1,7 @@
 import sys
 from PyQt5 import QtCore, QtWidgets, QtGui
 import datetime
+import re
 from dateutil import parser
 from SupportClasses import dashboard, login, databaseconnector
 
@@ -81,8 +82,11 @@ class DashboardW:
         row = table.selectedIndexes()[-1].row()
         self.ui.txtBugDetails.setText(table.item(row, 1).text())
         arguements = table.item(row, 2).text()
-        self.ui.txtBugArgs.setText()
-        self.ui.txtBugKwargs.setText()
+        regex = r":.*?;"
+        split = re.findall(regex, arguements)
+        print(split)
+        self.ui.txtBugArgs.setText(split[0][2:-1])
+        self.ui.txtBugKwargs.setText(split[1][2:-1])
         self.ui.txtBugSource.setText(table.item(row, 3).text())
         self.ui.deBugDateCreated.setDate(parser.parse(table.item(row, 4).text()))
         index = self.ui.cmbBugStatus.findText(table.item(row, 5).text(), QtCore.Qt.MatchFixedString)
@@ -133,6 +137,7 @@ class DashboardW:
         self.ui.txtAdminUserName.setText("")
         self.ui.txtAdminFirstName.setText("")
         self.ui.txtAdminLastName.setText("")
+        self.ui.txtAdminEmail.setText("")
         self.ui.txtAdminPassword.setText("")
 
     def populate_fields_admins(self):
@@ -381,7 +386,6 @@ class Controller:
         self.dashboard.ui.cmbBackup.clear()
         self.dashboard.ui.cmbListenersUserName.clear()
         items = [ _[0] for _ in devs["result"]]
-        print(f' items: {items}')
         self.dashboard.ui.cmbListener.addItems(items)
         self.dashboard.ui.cmbBackup.addItems([ _[0] for _ in devs["result"]])
         self.dashboard.ui.cmbListenersUserName.addItems([ _[0] for _ in devs["result"]])
@@ -390,7 +394,6 @@ class Controller:
         bugSources = self.dbc.get_distinct_bug_sources()
         self.dashboard.ui.cmbListenersBugSource.clear()
         items = [ _[0] for _ in bugSources["result"]]
-        print(f' items: {items}')
         self.dashboard.ui.cmbListenersBugSource.addItems(items)
 
     ###########################
@@ -410,7 +413,6 @@ class Controller:
         if(check["safe"]):
             result = self.dbc.insert_admin_record(username=fields["username"], firstname=fields["firstname"], lastname=fields["lastname"], 
                 email=fields["email"], password=fields["password"])
-            print(result)
             self.refresh_table_admins()
         else:
             self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
@@ -426,16 +428,22 @@ class Controller:
     def insert_backup(self):
         check, fields = self.dashboard.get_fields_backup()
         if(check["safe"]):
-            self.dbc.insert_backup_record(backupDevID=fields["backup"], devID=fields["listener"])
+            self.dbc.insert_backup_record(backupDev=fields["backup"], dev=fields["listener"])
             self.refresh_table_backups()
         else:
             self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
 
     def update_bug(self):
         check, fields = self.dashboard.get_fields_bugs()
+        table = self.dashboard.ui.tblwBugs
+        row = table.selectedIndexes()[-1].row()
+
+        if not row>-1:
+            check["safe"]=False
+            check["message"]="Please select a record to update"
+
         if(check["safe"]):
-            table = self.dashboard.ui.tblwBugs
-            row = table.currentItem().row()
+            
             fields["rowid"] = table.item(row, 0).text()
             self.dbc.update_bug_record(rowID=fields["rowid"], details=fields["details"], args=fields["args"], 
                 kwargs=fields["kwargs"], source=fields["source"], dateCreated=fields["date_created"], status=fields["status"], 
@@ -446,6 +454,13 @@ class Controller:
 
     def update_admin(self):
         check, fields = self.dashboard.get_fields_admins()
+        table = self.dashboard.ui.tblwAdmin
+        row = table.selectedIndexes()[-1].row()
+        print(f"selected row: {row}")
+        if not row>-1:
+            check["safe"]=False
+            check["message"]="Please select a record to update"
+
         if(check["safe"]):
             table = self.dashboard.ui.tblwAdmin
             row = table.currentItem().row()
@@ -458,9 +473,15 @@ class Controller:
 
     def update_listener(self):
         check, fields = self.dashboard.get_fields_listeners()
+        table = self.dashboard.ui.tblwListeners
+        row = table.selectedIndexes()[-1].row()
+        
+        if not row>-1:
+            check["safe"]=False
+            check["message"]="Please select a record to update"
+
         if(check["safe"]):
-            table = self.dashboard.ui.tblwListeners
-            row = table.currentItem().row()
+            
             fields["rowid"] = table.item(row, 0).text()
             self.dbc.update_listener_record(rowID=fields["rowid"], username=fields["username"], source=fields["bug_source"])
             self.refresh_table_listeners()
@@ -469,11 +490,17 @@ class Controller:
 
     def update_backup(self):
         check, fields = self.dashboard.get_fields_backup()
+        table = self.dashboard.ui.tblwBackup
+        row = table.selectedIndexes()[-1].row()
+
+        if not row>-1:
+            check["safe"]=False
+            check["message"]="Please select a record to update"
+
         if(check["safe"]):
-            table = self.dashboard.ui.tblwBackup
-            row = table.currentItem().row()
+            
             fields["rowid"] = table.item(row, 0).text()
-            self.dbc.update_backup_record(rowID=fields["rowid"], backupDevID=fields["backup"], devID=fields["listener"])
+            self.dbc.update_backup_record(rowID=fields["rowid"], backupDev=fields["backup"], dev=fields["listener"])
             self.refresh_table_backups()
         else:
             self.errorDisplay.showMessage(message="Please check input fields", details=check["message"], type ="Warning")
@@ -505,7 +532,7 @@ class Controller:
             "message":""
         }
         table = self.dashboard.ui.tblwAdmin
-        row = self.dashboard.ui.tblwBugs.currentItem().row()
+        row = table.currentItem().row()
         
         if not row>-1:
             check["safe"]=False
