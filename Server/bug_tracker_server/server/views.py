@@ -284,13 +284,13 @@ def update_bug_record(request):
 		    }
 		    try:
 		    	with conn:
-			    	c.execute('''UPDATE bugs SET
+			    	c.execute('''UPDATE bugs 
 			    		bugDetails = :details, 
 					    bugArguments = :arguments, 
-					    bugSource = :bugSource", 
-					    bugDateCreated = :dateCreated", 
-					    bugStatus = :status", 
-					    bugExpectedResolution = :expectedResolution"
+					    bugSource = :bugSource, 
+					    bugDateCreated = :dateCreated, 
+					    bugStatus = :status, 
+					    bugExpectedResolution = :expectedResolution
 					    WHERE rowid = :rowID
 			    		''', 
 			    		{"details":request.POST["bugDetails"],
@@ -305,6 +305,7 @@ def update_bug_record(request):
 		    	response["status"]="Error"
 		    	response["result"]=str(e)
 		    finally:
+		    	print(json.dumps(response))
 		    	return HttpResponse(json.dumps(response))
 
 @csrf_exempt
@@ -324,8 +325,8 @@ def update_admin_record(request):
 					    devFirstName = :firstname, 
 					    devLastName = :lastname,
 					    devEmail = :email, 
-					    devPassword = :password,
-					    WHERE rowid = :rowID
+					    devPassword = :password
+					    WHERE rowid = :rowID;
 			    		''', 
 			    		{"username":request.POST["devUsername"],
 			    		"firstname":request.POST["devFirstName"],
@@ -338,6 +339,7 @@ def update_admin_record(request):
 		    	response["status"]="Error"
 		    	response["result"]=str(e)
 		    finally:
+		    	print(json.dumps(response))
 		    	return HttpResponse(json.dumps(response))
 
 @csrf_exempt
@@ -354,8 +356,8 @@ def update_listener_record(request):
 		    	with conn:
 			    	c.execute('''UPDATE listeners SET
 			    		devUserName = :username, 
-					    bugSource = :bugSource, 
-					    WHERE rowid = :rowID
+					    bugSource = :bugSource 
+					    WHERE rowid = :rowID;
 			    		''', 
 			    		{"username":request.POST["devUserName"],
 			    		"bugSource":request.POST["bugSource"],
@@ -381,8 +383,8 @@ def update_backup_record(request):
 		    	with conn:
 			    	c.execute('''UPDATE backupListeners SET
 			    		backupDev = :backupDev, 
-					    dev = :dev, 
-					    WHERE rowid = :rowID
+					    dev = :dev
+					    WHERE rowid = :rowID;
 			    		''', 
 			    		{"backupDev":request.POST["backupDev"],
 			    		"dev":request.POST["dev"],
@@ -480,7 +482,7 @@ def delete_backup_record(request):
 		    try:
 		    	with conn:
 			    	c.execute('''DELETE FROM backupListeners 
-					    WHERE rowid = :rowID
+					    WHERE rowid = :rowID;
 			    		''', 
 			    		{"rowID":request.POST["rowID"]})
 			    	response["result"]=c.fetchall()
