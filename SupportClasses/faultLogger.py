@@ -1,20 +1,4 @@
 from functools import wraps
-from SupportClasses import POSTClient
-import datetime
-
-pc = POSTClient.POSTClient()
-
-def insert_bug_record(details, args, kwargs, source, dateCreated, status, expectedResolution):
-        message = {
-            "details":details, 
-            "args":args, 
-            "kwargs":kwargs, 
-            "source":source, 
-            "dateCreated":dateCreated, 
-            "status":status, 
-            "expectedResolution":expectedResolution
-        }
-        return(self.pc.send(url = "insert-bug-record", message=message))
 
 
 def my_logger(func):
@@ -29,15 +13,8 @@ def my_logger(func):
 			return(func(*args, **kwargs))
 		except Exception as e:
 			logging.info(e)
+			client = Client()
+			client.insert_bug(str(e), info_message, func.__name__)
 			logging.info("#####################################")
-			
-			details = e
-			source = func.__name__
-			dateCreated = datetime.date.today()
-			status = "NEW"
-			expectedResolution = "TBD"
-			print(insert_bug_record(details, args, kwargs, source, dateCreated, status, expectedResolution))
-			
-			return("Exception Thrown")
 
 	return wrapper
